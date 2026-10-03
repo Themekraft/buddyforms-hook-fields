@@ -3,7 +3,7 @@
  * Plugin Name: BuddyForms Hook Fields
  * Plugin URI: https://themekraft.com/products/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
- * Version: 1.3.16
+ * Version: 1.3.17-beta.1
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Requires Plugins: buddyforms
