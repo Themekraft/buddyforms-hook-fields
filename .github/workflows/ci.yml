@@ -11,4 +11,7 @@ jobs:
     with:
       slug: buddyforms-hook-fields
       plugin-check: true
+      # The runtime checks need a URL for every public post type, and the bf_template
+      # post type has none in the CI site. Making it non-public would break Elementor editing.
+      plugin-check-exclude-checks: enqueued_scripts_size,enqueued_styles_size,enqueued_scripts_scope,enqueued_styles_scope,non_blocking_scripts
     secrets: inherit
