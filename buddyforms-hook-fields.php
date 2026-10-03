@@ -4,11 +4,14 @@
  * Plugin URI: https://themekraft.com/products/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
  * Version: 1.3.16
+ * Requires at least: 5.9
+ * Requires PHP: 7.4
+ * Requires Plugins: buddyforms
  * Author: ThemeKraft
  * Author URI: https://themekraft.com/buddyforms/
- * Licence: GPLv3
- * Network: false
- * Text Domain: buddyforms
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: buddyforms-hook-fields
  * Svn: buddyforms-hook-fields
  *****************************************************************************
  *
@@ -29,11 +32,31 @@
  ****************************************************************************
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+if ( ! function_exists( 'buddyforms_addon_plugin_dependencies_slug' ) ) {
+	/**
+	 * Let the running BuddyForms copy (free or premium) satisfy "Requires Plugins: buddyforms".
+	 *
+	 * @param string $slug Dependency slug.
+	 *
+	 * @return string
+	 */
+	function buddyforms_addon_plugin_dependencies_slug( $slug ) {
+		if ( 'buddyforms' === $slug && defined( 'BUDDYFORMS_INSTALL_PATH' ) ) {
+			return basename( BUDDYFORMS_INSTALL_PATH );
+		}
 
+		return $slug;
+	}
+
+	add_filter( 'wp_plugin_dependencies_slug', 'buddyforms_addon_plugin_dependencies_slug' );
+}
 
 //
-// Check the plugin dependencies
+// Load the add-on
 //
 add_action(
 	'init',
@@ -42,42 +65,6 @@ add_action(
 		require dirname( __FILE__ ) . '/includes/form-options.php';
 		require dirname( __FILE__ ) . '/includes/templates-handler.php';
 		require dirname( __FILE__ ) . '/includes/gutenberg/shortcodes-to-blocks.php';
-
-		// Only Check for requirements in the admin
-		if ( ! is_admin() ) {
-			return;
-		}
-
-		// Require TGM
-		require dirname( __FILE__ ) . '/includes/resources/tgm/class-tgm-plugin-activation.php';
-
-		// Hook required plugins function to the tgmpa_register action
-		add_action(
-			'tgmpa_register',
-			function () {
-
-				// Create the required plugins array
-				if ( ! defined( 'BUDDYFORMS_PRO_VERSION' ) ) {
-					$plugins['buddyforms'] = array(
-						'name'     => 'BuddyForms',
-						'slug'     => 'buddyforms',
-						'required' => true,
-					);
-
-					$config = array(
-						'id'           => 'buddyforms-tgmpa',
-						'parent_slug'  => 'plugins.php',
-						'capability'   => 'manage_options',
-						'has_notices'  => true,
-						'dismissable'  => false,
-						'is_automatic' => true,
-					);
-
-					// Call the tgmpa function to register the required plugins
-					tgmpa( $plugins, $config );
-				}
-			}
-		);
 	},
 	1,
 	1

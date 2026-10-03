@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Define who the form data will be show in a single post view.
  *
@@ -21,7 +25,7 @@ function buddyforms_list_all_post_fields( $content ) {
 	}
 	if ( isset( $buddyforms[ $form_slug ]['hook_fields_show_edit_link'] ) ) {
 
-		$edit_link = '<p><a class="post-edit-link" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'buddyforms' ) . ' <span class="screen-reader-text">prueba nueva</span></a></p>';
+		$edit_link = '<p><a class="post-edit-link" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'buddyforms-hook-fields' ) . ' <span class="screen-reader-text">prueba nueva</span></a></p>';
 
 		$content = $edit_link . $content;
 	}

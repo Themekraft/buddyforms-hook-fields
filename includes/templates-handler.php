@@ -1,13 +1,17 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Register custom post type for the templates
  */
 function buddyforms_hooks_fields_template_post_type() {
 	// Create BuddyForms post type
 	$labels = array(
-		'name'          => __( 'Template', 'buddyforms' ),
-		'singular_name' => __( 'Templates', 'buddyforms' ),
+		'name'          => __( 'Template', 'buddyforms-hook-fields' ),
+		'singular_name' => __( 'Templates', 'buddyforms-hook-fields' ),
 	);
 
 	register_post_type(
@@ -51,7 +55,7 @@ function buddyforms_hooks_fields_get_templates() {
 
 	$posts = new WP_Query( $args );
 
-	$all_templates = array( __( '-No override-', 'buddyforms' ) );
+	$all_templates = array( __( '-No override-', 'buddyforms-hook-fields' ) );
 	if ( $posts->have_posts() ) {
 		foreach ( $posts->posts as $item ) {
 			$all_templates[ $item->ID ] = $item->post_title;

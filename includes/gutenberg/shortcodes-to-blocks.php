@@ -72,12 +72,12 @@ function buddyforms_hook_fields_block_render_form( $attributes ) {
 	global $buddyforms, $post;
 
 	if ( isset( $attributes['bf_form_slug'] ) && isset( $buddyforms[ $attributes['bf_form_slug'] ] ) ) {
-		$tmp = '<p>' . __( 'Please select a form element in the block settings sidebar!', 'buddyforms' ) . '</p>';
+		$tmp = '<p>' . __( 'Please select a form element in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
 		if ( isset( $attributes['bf_form_field'] ) ) {
 				$tmp = do_shortcode( '[bfsinglefield form-slug="' . $attributes['bf_form_slug'] . '" field-slug="' . $attributes['bf_form_field'] . '"]' );
 		}
 		return $tmp;
 	} else {
-		return '<p>' . __( 'Please select a form in the block settings sidebar!', 'buddyforms' ) . '</p>';
+		return '<p>' . __( 'Please select a form in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
 	}
 }
