@@ -4,7 +4,7 @@
  * Register the option metabox
  */
 function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox() {
-	add_meta_box( 'buddyforms_list_all_post_fields', __( 'Display Form Elements on the Single View ', 'buddyforms' ), 'buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html', 'buddyforms', 'normal', 'low' );
+	add_meta_box( 'buddyforms_list_all_post_fields', __( 'Display Form Elements on the Single View ', 'buddyforms-hook-fields' ), 'buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html', 'buddyforms', 'normal', 'low' );
 	add_filter( 'postbox_classes_buddyforms_buddyforms_list_all_post_fields', 'buddyforms_metabox_class' );
 	add_filter( 'postbox_classes_buddyforms_buddyforms_list_all_post_fields', 'buddyforms_metabox_hide_if_form_type_register' );
 	add_filter( 'postbox_classes_buddyforms_buddyforms_list_all_post_fields', 'buddyforms_metabox_show_if_attached_page' );
@@ -29,14 +29,14 @@ function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html() {
 	// Add field data as table
 	$hook_fields_list_on_single = isset( $buddyform['hook_fields_list_on_single'] ) ? $buddyform['hook_fields_list_on_single'] : '';
 	$form_setup[]               = new Element_Checkbox(
-		'<b>' . __( 'Add Form Elements as Table', 'buddyforms' ) . '</b>',
+		'<b>' . __( 'Add Form Elements as Table', 'buddyforms-hook-fields' ) . '</b>',
 		'buddyforms_options[hook_fields_list_on_single]',
 		array( 'integrate' => 'Integrate this Form' ),
 		array(
 			'value'     => $hook_fields_list_on_single,
 			'shortDesc' => __(
 				'This option will not work if you have a Template page selected.',
-				'buddyforms'
+				'buddyforms-hook-fields'
 			),
 		)
 	);
@@ -50,12 +50,12 @@ function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html() {
 	$all_pages     = buddyforms_hooks_fields_get_templates();
 	$attached_page = isset( $buddyform['hook_fields_template_page'] ) ? $buddyform['hook_fields_template_page'] : '';
 	$form_setup[]  = new Element_Select(
-		'<b>' . __( 'Template page', 'buddyforms' ) . '</b>',
+		'<b>' . __( 'Template page', 'buddyforms-hook-fields' ) . '</b>',
 		'buddyforms_options[hook_fields_template_page]',
 		$all_pages,
 		array(
 			'value'     => $attached_page,
-			'shortDesc' => sprintf( '%s <a href="https://docs.buddyforms.com/article/641-page-template?utm_source=plugin" target="_blank">%s</a>', __( 'This is a template page to override the output of a single post.', 'buddyforms' ), __( 'Read more in the documentation.', 'buddyforms' ) ),
+			'shortDesc' => sprintf( '%s <a href="https://docs.buddyforms.com/article/641-page-template?utm_source=plugin" target="_blank">%s</a>', __( 'This is a template page to override the output of a single post.', 'buddyforms-hook-fields' ), __( 'Read more in the documentation.', 'buddyforms-hook-fields' ) ),
 			'id'        => 'attached_page',
 		)
 	);
@@ -63,14 +63,14 @@ function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html() {
 	// Add option to hide the title
 	$hide_title   = isset( $buddyform['hook_fields_hide_title'] ) ? $buddyform['hook_fields_hide_title'] : '';
 	$form_setup[] = new Element_Checkbox(
-		'<b>' . __( 'Hide the title ', 'buddyforms' ) . '</b>',
+		'<b>' . __( 'Hide the title ', 'buddyforms-hook-fields' ) . '</b>',
 		'buddyforms_options[hook_fields_hide_title]',
-		array( 'yes' => __( 'Disable the post title', 'buddyforms' ) ),
+		array( 'yes' => __( 'Disable the post title', 'buddyforms-hook-fields' ) ),
 		array(
 			'value'     => $hide_title,
 			'shortDesc' => __(
 				'Use this option if you override the Title with a template shortcode.',
-				'buddyforms'
+				'buddyforms-hook-fields'
 			),
 		)
 	);
@@ -79,14 +79,14 @@ function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html() {
 	// Add option to hide the title
 	$show_edit_link = isset( $buddyform['hook_fields_show_edit_link'] ) ? $buddyform['hook_fields_show_edit_link'] : '';
 	$form_setup[]   = new Element_Checkbox(
-		'<b>' . __( 'Show Edit Link ', 'buddyforms' ) . '</b>',
+		'<b>' . __( 'Show Edit Link ', 'buddyforms-hook-fields' ) . '</b>',
 		'buddyforms_options[hook_fields_show_edit_link]',
-		array( 'yes' => __( 'Show Edit Link', 'buddyforms' ) ),
+		array( 'yes' => __( 'Show Edit Link', 'buddyforms-hook-fields' ) ),
 		array(
 			'value'     => $show_edit_link,
 			'shortDesc' => __(
 				'Use this option to show a Edit link on the front end',
-				'buddyforms'
+				'buddyforms-hook-fields'
 			),
 		)
 	);
@@ -132,7 +132,7 @@ function buddyforms_hook_options_into_formfields( $form_fields, $field_type, $fi
 		$hooks,
 		array(
 			'value'     => $display,
-			'shortDesc' => __( 'This only works for the single view.', 'buddyforms' ),
+			'shortDesc' => __( 'This only works for the single view.', 'buddyforms-hook-fields' ),
 		)
 	);
 
@@ -146,7 +146,7 @@ function buddyforms_hook_options_into_formfields( $form_fields, $field_type, $fi
 		'buddyforms_options[form_fields][' . $field_id . '][hook]',
 		array(
 			'value'     => $hook,
-			'shortDesc' => __( 'This option give the ability to place the output of the field to other action. It works global.', 'buddyforms' ),
+			'shortDesc' => __( 'This option give the ability to place the output of the field to other action. It works global.', 'buddyforms-hook-fields' ),
 		)
 	);
 
@@ -157,7 +157,7 @@ function buddyforms_hook_options_into_formfields( $form_fields, $field_type, $fi
 	$form_fields['hooks']['display_name'] = new Element_Checkbox(
 		'Display the label?',
 		'buddyforms_options[form_fields][' . $field_id . '][display_name]',
-		array( '' => __( 'Show the Field Label with the Field value.', 'buddyforms' ) ),
+		array( '' => __( 'Show the Field Label with the Field value.', 'buddyforms-hook-fields' ) ),
 		array(
 			'value' => $display_name,
 			'id'    => 'buddyforms_options[form_fields][' . $field_id . '][display_name]',
@@ -180,7 +180,7 @@ function buddyforms_hook_options_into_formfields( $form_fields, $field_type, $fi
 			$sizes,
 			array(
 				'value'     => $selected_size,
-				'shortDesc' => __( 'This option give the ability to control the size for uploaded images, Eg: thumbnail, medium, large.', 'buddyforms' ),
+				'shortDesc' => __( 'This option give the ability to control the size for uploaded images, Eg: thumbnail, medium, large.', 'buddyforms-hook-fields' ),
 			)
 		);
 

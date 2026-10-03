@@ -8,7 +8,7 @@
  * Author URI: https://themekraft.com/buddyforms/
  * Licence: GPLv3
  * Network: false
- * Text Domain: buddyforms
+ * Text Domain: buddyforms-hook-fields
  * Svn: buddyforms-hook-fields
  *****************************************************************************
  *
