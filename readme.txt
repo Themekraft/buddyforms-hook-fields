@@ -1,8 +1,9 @@
 === Display Data on your site! Create Dynamic Content Templates from any form of data. Works with ACF, Pods, BuddyPress/ BuddyBoss===
 Contributors: svenl77, konradS, themekraft, buddyforms, gfirem, marin250189
 Tags: form submission data, display form data, dynamic templates, content templates, form content templates
-Requires at least: 3.9
-Tested up to: 6.4.1
+Requires at least: 5.9
+Tested up to: 7.1
+Requires PHP: 7.4
 Stable tag: 1.3.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

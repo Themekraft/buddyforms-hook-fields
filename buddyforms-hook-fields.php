@@ -4,10 +4,12 @@
  * Plugin URI: https://themekraft.com/products/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
  * Version: 1.3.16
+ * Requires at least: 5.9
+ * Requires PHP: 7.4
  * Author: ThemeKraft
  * Author URI: https://themekraft.com/buddyforms/
- * Licence: GPLv3
- * Network: false
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: buddyforms-hook-fields
  * Svn: buddyforms-hook-fields
  *****************************************************************************
@@ -28,6 +30,10 @@
  *
  ****************************************************************************
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 
 
