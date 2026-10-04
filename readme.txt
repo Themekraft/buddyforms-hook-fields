@@ -4,7 +4,7 @@ Tags: form submission data, display form data, dynamic templates, content templa
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.17-beta.1
+Stable tag: 1.3.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,11 @@ Yes, you can display any post meta that is controled by a BuddyForms Post Form. 
 
 
 == Changelog ==
+= 1.3.17 - 03 Oct 2026 =
+* Required plugins are now declared with the WordPress "Requires Plugins" header instead of the bundled TGM Plugin Activation library.
+* Fixed translations: every string now uses the plugin's own text domain.
+* Requires WordPress 5.9 and PHP 7.4. Tested up to WordPress 7.1.
+
 = 1.3.16 - 19 Nov 2023 =
 * Updated Freemius SDK.
 * Tested up to WordPress 6.4.1
