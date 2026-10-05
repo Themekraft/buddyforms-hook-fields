@@ -4,7 +4,7 @@ Tags: form submission data, display form data, dynamic templates, content templa
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.17
+Stable tag: 1.3.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,9 @@ Yes, when they are part of a BuddyForms form. They are displayed like any other 
 1. **BuddyForms Hook Fields - Form Builder "Field Options"** - Hook your BuddyForms form fields through the field options.
 
 == Changelog ==
+= 1.3.18 - 04 Oct 2026 =
+* Readme: clearer plugin name and description.
+
 = 1.3.17 - 03 Oct 2026 =
 * Required plugins are now declared with the WordPress "Requires Plugins" header instead of the bundled TGM Plugin Activation library.
 * Fixed translations: every string now uses the plugin's own text domain.
