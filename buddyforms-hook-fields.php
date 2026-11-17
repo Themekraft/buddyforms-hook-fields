@@ -3,7 +3,7 @@
  * Plugin Name: BuddyForms Hook Fields
  * Plugin URI: https://wordpress.org/plugins/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
- * Version: 1.3.19
+ * Version: 1.3.20
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Requires Plugins: buddyforms
@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BUDDYFORMS_HOOK_FIELDS_VERSION', '1.3.19' );
+define( 'BUDDYFORMS_HOOK_FIELDS_VERSION', '1.3.20' );
 
 if ( ! function_exists( 'buddyforms_addon_plugin_dependencies_slug' ) ) {
 	/**

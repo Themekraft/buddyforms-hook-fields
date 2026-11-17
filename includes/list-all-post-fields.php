@@ -121,7 +121,10 @@ function buddyforms_list_all_post_fields( $content ) {
 			$template_content = apply_filters( 'the_content', $template_content ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter, renders the template like post content.
 			$template_content = str_replace( ']]>', ']]&gt;', $template_content );
 		}
+		// Escape each field value BuddyForms puts into the template; the template itself is post content.
+		add_filter( 'buddyforms_field_shortcode_value', 'buddyforms_hook_fields_escape_value', 9999 );
 		$template_content = buddyforms_get_field_value_from_string( $template_content, $post->ID, $form_slug, true );
+		remove_filter( 'buddyforms_field_shortcode_value', 'buddyforms_hook_fields_escape_value', 9999 );
 		if ( ! empty( $template_content ) ) {
 			$content = $template_content;
 		}

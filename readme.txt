@@ -4,7 +4,7 @@ Tags: form submission data, display form data, dynamic templates, content templa
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.19
+Stable tag: 1.3.20
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,10 @@ Yes, when they are part of a BuddyForms form. They are displayed like any other 
 1. **BuddyForms Hook Fields - Form Builder "Field Options"** - Hook your BuddyForms form fields through the field options.
 
 == Changelog ==
+= 1.3.20 - 17 Nov 2026 =
+* Security: field values shown through a dynamic content template are now escaped.
+* Fixed the documentation link of the template setting.
+
 = 1.3.19 - 17 Nov 2026 =
 * Security: field names and values shown on the front end are now escaped.
 * Fixed fields attached to a hook: their HTML was broken and images were removed.
