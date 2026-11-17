@@ -476,7 +476,16 @@ function buddyforms_hook_fields_single_field( $atts ) {
 		return '<p>' . sprintf( esc_html__( 'Field %s value.', 'buddyforms-hook-fields' ), '<b>"' . esc_html( $field_slug ) . '"</b>' ) . '</p>';
 	}
 
+	// Reading the field values renders the post content, which runs this shortcode again when the
+	// post content contains it. Return nothing on that nested call instead of recursing forever.
+	static $rendering = false;
+	if ( $rendering ) {
+		return '';
+	}
+
+	$rendering  = true;
 	$field_data = buddyforms_get_field_with_meta( $form_slug, $post->ID, $selected_field, false, true );
+	$rendering  = false;
 	if ( ! isset( $field_data['value'] ) ) {
 		return '<b>' . esc_html__( 'Sorry, this field was not found in the selected form.', 'buddyforms-hook-fields' ) . '</b>';
 	}
