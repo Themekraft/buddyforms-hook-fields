@@ -5,6 +5,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * HTML allowed in the field markup this add-on adds to the front end.
+ *
+ * @return array
+ */
+function buddyforms_hook_fields_allowed_html() {
+	$allowed = wp_kses_allowed_html( 'post' );
+
+	$allowed['source'] = array(
+		'src'  => true,
+		'type' => true,
+	);
+	$allowed['select'] = array(
+		'id'    => true,
+		'class' => true,
+		'name'  => true,
+	);
+	$allowed['option'] = array(
+		'value'    => true,
+		'class'    => true,
+		'id'       => true,
+		'selected' => true,
+	);
+
+	return $allowed;
+}
+
+/**
+ * Escape a field value (it can hold HTML built by BuddyForms, or be an array) for the front end.
+ *
+ * @param mixed $value Field value.
+ *
+ * @return string
+ */
+function buddyforms_hook_fields_escape_value( $value ) {
+	if ( is_array( $value ) ) {
+		$value = implode( ',', array_map( 'strval', array_filter( $value, 'is_scalar' ) ) );
+	}
+
+	return wp_kses( (string) $value, buddyforms_hook_fields_allowed_html() );
+}
+
+/**
+ * Split an attachment mime type into its type and extension.
+ *
+ * @param int $attachment_id Attachment ID.
+ *
+ * @return array Type and extension, empty strings when unknown.
+ */
+function buddyforms_hook_fields_attachment_type( $attachment_id ) {
+	$parts = explode( '/', (string) get_post_mime_type( $attachment_id ) );
+
+	return array( $parts[0], isset( $parts[1] ) ? $parts[1] : '' );
+}
+
+/**
  * Define who the form data will be show in a single post view.
  *
  * @param $content
@@ -25,9 +80,13 @@ function buddyforms_list_all_post_fields( $content ) {
 	}
 	if ( isset( $buddyforms[ $form_slug ]['hook_fields_show_edit_link'] ) ) {
 
-		$edit_link = '<p><a class="post-edit-link" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'buddyforms-hook-fields' ) . ' <span class="screen-reader-text">prueba nueva</span></a></p>';
+		$edit_url = get_edit_post_link( $post->ID );
 
-		$content = $edit_link . $content;
+		if ( $edit_url ) {
+			$edit_link = '<p><a class="post-edit-link" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'buddyforms-hook-fields' ) . ' <span class="screen-reader-text">' . esc_html( $post->post_title ) . '</span></a></p>';
+
+			$content = $edit_link . $content;
+		}
 	}
 
 	if ( empty( $buddyforms ) || empty( $buddyforms[ $form_slug ] ) ) {
@@ -43,13 +102,14 @@ function buddyforms_list_all_post_fields( $content ) {
 		return $content;
 	}
 
-	wp_enqueue_style( 'bf-hook-fields', plugins_url( 'assets/bf-hook-fields.css', __FILE__ ) );
+	wp_enqueue_style( 'bf-hook-fields', plugins_url( 'assets/bf-hook-fields.css', __FILE__ ), array(), BUDDYFORMS_HOOK_FIELDS_VERSION );
 
 	remove_filter( 'the_content', 'buddyforms_list_all_post_fields', 999 );
 
 	$exist_title_in_post = buddyforms_exist_field_type_in_form( $form_slug, 'title' );
-	if ( ! empty( $hide_title ) && $exist_title_in_post ) {
-		echo '<style>.entry-header{display: none;}</style>';
+	if ( ! empty( $hide_title ) && $exist_title_in_post && ! did_action( 'buddyforms_hook_fields_hide_title' ) ) {
+		wp_add_inline_style( 'bf-hook-fields', '.entry-header{display: none;}' );
+		do_action( 'buddyforms_hook_fields_hide_title' );
 	}
 	if ( $is_post_template_enabled ) {
 		if ( class_exists( 'Elementor\Plugin' ) ) {
@@ -58,7 +118,7 @@ function buddyforms_list_all_post_fields( $content ) {
 
 		if ( empty( $template_content ) ) {
 			$template_content = get_the_content( null, false, $post_template_id );
-			$template_content = apply_filters( 'the_content', $template_content );
+			$template_content = apply_filters( 'the_content', $template_content ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter, renders the template like post content.
 			$template_content = str_replace( ']]>', ']]&gt;', $template_content );
 		}
 		$template_content = buddyforms_get_field_value_from_string( $template_content, $post->ID, $form_slug, true );
@@ -90,37 +150,35 @@ function buddyforms_list_all_post_fields( $content ) {
 						foreach ( $media_items as $attachment_item ) {
 							if ( ! empty( $attachment_item ) ) {
 								$attachment_full_url      = wp_get_attachment_url( $attachment_item );
-								$file_mime_type           = get_post_mime_type( $attachment_item );
-								$file_type                = explode( '/', $file_mime_type )[0];
-								$file_type_extension      = explode( '/', $file_mime_type )[1];
-								$default_thumbnail        = plugin_dir_url( __FILE__ ) . '/assets/images/multimedia.png';
+								list( $file_type, $file_type_extension ) = buddyforms_hook_fields_attachment_type( $attachment_item );
+								$default_thumbnail        = plugin_dir_url( __FILE__ ) . 'assets/images/multimedia.png';
 								$attachment_thumbnail_url = wp_get_attachment_thumb_url( $attachment_item ) === false ? $default_thumbnail : wp_get_attachment_thumb_url( $attachment_item );
 
-								$result .= "<a class='image-placeholder' href='" . $attachment_full_url . "' target='_blank'>";
+								$result .= "<a class='image-placeholder' href='" . esc_url( $attachment_full_url ) . "' target='_blank'>";
 
 								switch ( $file_type ) {
 
 									case 'video':
-										$result .= "<video width='150' height='150' controls> <source src='" . $attachment_full_url . "' >  </video>";
+										$result .= "<video width='150' height='150' controls> <source src='" . esc_url( $attachment_full_url ) . "' >  </video>";
 										break;
 									case 'image':
-										$result .= "<img src='" . $attachment_thumbnail_url . "' />";
+										$result .= "<img src='" . esc_url( $attachment_thumbnail_url ) . "' />";
 										break;
 									case 'audio':
-										$result .= "<audio width='150' height='150' controls> <source src='" . $attachment_full_url . "' ></audio>";
+										$result .= "<audio controls> <source src='" . esc_url( $attachment_full_url ) . "' ></audio>";
 										break;
 
 									default:
 									case 'application':
 										if ( $file_type_extension == 'pdf' ) {
-											$pdf_thumbnail = plugin_dir_url( __FILE__ ) . '/assets/images/pdf.png';
-											$result       .= "<img src='" . $pdf_thumbnail . "' />";
+											$pdf_thumbnail = plugin_dir_url( __FILE__ ) . 'assets/images/pdf.png';
+											$result       .= "<img src='" . esc_url( $pdf_thumbnail ) . "' />";
 										} elseif ( $file_type_extension == 'zip' || $file_type_extension == 'x-gzip' || $file_type_extension == 'rar' || $file_type_extension == 'x-7z-compressed' ) {
-											$compressed_thumbnail = plugin_dir_url( __FILE__ ) . '/assets/images/compressed.png';
-											$result              .= "<img src='" . $compressed_thumbnail . "' />";
+											$compressed_thumbnail = plugin_dir_url( __FILE__ ) . 'assets/images/compressed.png';
+											$result              .= "<img src='" . esc_url( $compressed_thumbnail ) . "' />";
 
 										} else {
-											$result .= "<img src='" . $default_thumbnail . "' />";
+											$result .= "<img src='" . esc_url( $default_thumbnail ) . "' />";
 										}
 
 										break;
@@ -130,9 +188,9 @@ function buddyforms_list_all_post_fields( $content ) {
 
 							}
 						}
-						$new_content .= '<tr ' . $striped . '><td><strong>' . $field['name'] . '</strong> </td><td><div>' . trim( $result ) . '</div></td></tr>';
+						$new_content .= '<tr ' . $striped . '><td><strong>' . esc_html( $field['name'] ) . '</strong> </td><td><div>' . trim( $result ) . '</div></td></tr>';
 					} else {
-						$new_content .= '<tr ' . $striped . '><td><strong>' . $field['name'] . '</strong> </td><td>' . $field_value . '</td></tr>';
+						$new_content .= '<tr ' . $striped . '><td><strong>' . esc_html( $field['name'] ) . '</strong> </td><td>' . buddyforms_hook_fields_escape_value( $field_value ) . '</td></tr>';
 					}
 				}
 			}
@@ -140,7 +198,7 @@ function buddyforms_list_all_post_fields( $content ) {
 
 		// Table end
 		$new_content .= '</table>';
-		$content     .= $new_content;
+		$content     .= wp_kses( $new_content, buddyforms_hook_fields_allowed_html() );
 	}
 
 	add_filter( 'the_content', 'buddyforms_list_all_post_fields', 999, 1 );
@@ -155,7 +213,7 @@ add_filter( 'the_content', 'buddyforms_list_all_post_fields', 999, 1 );
  * Define how to display each field
  */
 function buddyforms_form_display_element_frontend() {
-	global $buddyforms, $post, $bf_hooked;
+	global $buddyforms, $post, $buddyforms_hook_fields_hooked;
 
 	if ( is_admin() ) {
 		return;
@@ -165,7 +223,7 @@ function buddyforms_form_display_element_frontend() {
 		return;
 	}
 
-	if ( $bf_hooked ) {
+	if ( $buddyforms_hook_fields_hooked ) {
 		return;
 	}
 
@@ -183,66 +241,13 @@ function buddyforms_form_display_element_frontend() {
 		return;
 	}
 
-	wp_enqueue_style( 'bf-hook-fields', plugins_url( 'assets/bf-hook-fields.css', __FILE__ ) );
+	wp_enqueue_style( 'bf-hook-fields', plugins_url( 'assets/bf-hook-fields.css', __FILE__ ), array(), BUDDYFORMS_HOOK_FIELDS_VERSION );
 
 	$before_the_title   = false;
 	$after_the_title    = false;
 	$before_the_content = false;
 	$after_the_content  = false;
-	$allowed            = array(
-		'a'      => array(
-			'href'  => array(),
-			'title' => array(),
-			'class' => array(),
-			'id'    => array(),
-			'data'  => array(),
-			'rel'   => array(),
-		),
-		'br'     => array(),
-		'em'     => array(),
-		'ul'     => array(
-			'class' => array(),
-			'id'    => array(),
-		),
-		'ol'     => array(
-			'class' => array(),
-		),
-		'li'     => array(
-			'class' => array(),
-			'id'    => array(),
-		),
-		'strong' => array(),
-		'div'    => array(
-			'class' => array(),
-			'id'    => array(),
-			'data'  => array(),
-			'style' => array(),
-		),
-		'span'   => array(
-			'class' => array(),
-			'id'    => array(),
-			'style' => array(),
-		),
-		'img'    => array(
-			'alt'    => array(),
-			'class'  => array(),
-			'id'     => array(),
-			'height' => array(),
-			'src'    => array(),
-			'width'  => array(),
-		),
-		'select' => array(
-			'id'    => array(),
-			'class' => array(),
-			'name'  => array(),
-		),
-		'option' => array(
-			'value'    => array(),
-			'class'    => array(),
-			'id'       => array(),
-			'selected' => array(),
-		),
-	);
+	$allowed            = buddyforms_hook_fields_allowed_html();
 	foreach ( $buddyforms[ $form_slug ]['form_fields'] as $field_id => $customfield ) {
 
 		if( isset( $customfield['slug'] ) ) {
@@ -253,10 +258,10 @@ function buddyforms_form_display_element_frontend() {
 				$customfield_value = ! empty( $field['value'] ) ? $field['value'] : apply_filters( 'buddyforms_field_shortcode_empty_value', '', $field, $form_slug, $post->ID, $field['slug'] );
 	
 				if ( ! empty( $customfield_value ) ) {
-					$post_meta_tmp = '<div class="post_meta bf-hook-field ' . $customfield['slug'] . '">';
+					$post_meta_tmp = '<div class="post_meta bf-hook-field ' . esc_attr( $customfield['slug'] ) . '">';
 	
 					if ( isset( $customfield['display_name'] ) ) {
-						$post_meta_tmp .= '<p style="width:100%;">' . $customfield['name'] . ':</p>';
+						$post_meta_tmp .= '<p style="width:100%;">' . esc_html( $customfield['name'] ) . ':</p>';
 					}
 	
 					if ( $field['type'] === 'upload' || $field['type'] === 'file' ) {
@@ -273,30 +278,28 @@ function buddyforms_form_display_element_frontend() {
 							if ( ! empty( $attachment_item ) ) {
 								$attachment_full_url      = wp_get_attachment_url( $attachment_item );
 								$attachment_thumbnail_url = wp_get_attachment_image_src( $attachment_item, $thumbnail_size );
-								$file_mime_type           = get_post_mime_type( $attachment_item );
-								$file_type                = explode( '/', $file_mime_type )[0];
-								$file_type_extension      = explode( '/', $file_mime_type )[1];
+								list( $file_type, $file_type_extension ) = buddyforms_hook_fields_attachment_type( $attachment_item );
 	
 								$registered_sizes = wp_get_registered_image_subsizes();
-								$media_size_width = isset( $registered_sizes[ $thumbnail_size ]['width'] ) ? $registered_sizes[ $thumbnail_size ]['width'] : 150;
+								$media_size_width = isset( $registered_sizes[ $thumbnail_size ]['width'] ) ? absint( $registered_sizes[ $thumbnail_size ]['width'] ) : 150;
 	
-								$default_img  = plugin_dir_url( __FILE__ ) . '/assets/images/multimedia.png';
-								$media_output = "<a href='" . $attachment_full_url . "' target='_blank'>";
+								$default_img  = plugin_dir_url( __FILE__ ) . 'assets/images/multimedia.png';
+								$media_output = "<a href='" . esc_url( $attachment_full_url ) . "' target='_blank'>";
 	
 								switch ( $file_type ) {
 	
 									case 'video':
-										$media_output .= '<video width=' . $media_size_width . " controls> <source src='" . $attachment_full_url . "' ></video>";
+										$media_output .= "<video width='" . $media_size_width . "' controls> <source src='" . esc_url( $attachment_full_url ) . "' ></video>";
 										break;
 	
 									case 'image':
-										$media_output .= "<img src='" . $attachment_thumbnail_url[0] . "' />";
+										$media_output .= "<img src='" . esc_url( $attachment_thumbnail_url ? $attachment_thumbnail_url[0] : $default_img ) . "' />";
 										break;
 									case 'audio':
 										$media_style   = "style='width: " . $media_size_width . "px;'";
 										$media_output .= "<span class='image-placeholder' " . $media_style . '>';
-										$media_output .= "<audio  controls style='width:80%'> <source src='" . $attachment_full_url . "' ></audio>";
-										$media_output .= '<p>' . basename( get_attached_file( $attachment_item ) ) . '</p>';
+										$media_output .= "<audio  controls style='width:80%'> <source src='" . esc_url( $attachment_full_url ) . "' ></audio>";
+										$media_output .= '<p>' . esc_html( basename( (string) get_attached_file( $attachment_item ) ) ) . '</p>';
 										$media_output .= '</span>';
 	
 										break;
@@ -307,16 +310,16 @@ function buddyforms_form_display_element_frontend() {
 										$media_output .= "<span class='image-placeholder' " . $media_style . '>';
 	
 										if ( $file_type_extension === 'pdf' ) {
-											$pdf_thumbnail = plugin_dir_url( __FILE__ ) . '/assets/images/pdf.png';
-											$media_output .= "<img src='" . $pdf_thumbnail . "' />";
+											$pdf_thumbnail = plugin_dir_url( __FILE__ ) . 'assets/images/pdf.png';
+											$media_output .= "<img src='" . esc_url( $pdf_thumbnail ) . "' />";
 										} elseif ( $file_type_extension === 'zip' || $file_type_extension == 'x-gzip' || $file_type_extension == 'rar' || $file_type_extension == 'x-7z-compressed' ) {
-											$compressed_thumbnail = plugin_dir_url( __FILE__ ) . '/assets/images/compressed.png';
-											$media_output        .= "<img src='" . $compressed_thumbnail . "' />";
+											$compressed_thumbnail = plugin_dir_url( __FILE__ ) . 'assets/images/compressed.png';
+											$media_output        .= "<img src='" . esc_url( $compressed_thumbnail ) . "' />";
 										} else {
-											$media_output .= "<img src='" . $default_img . "' />";
+											$media_output .= "<img src='" . esc_url( $default_img ) . "' />";
 										}
 	
-										$media_output .= '<p>' . basename( get_attached_file( $attachment_item ) ) . '</p>';
+										$media_output .= '<p>' . esc_html( basename( (string) get_attached_file( $attachment_item ) ) ) . '</p>';
 										$media_output .= '</span>';
 	
 										break;
@@ -330,11 +333,7 @@ function buddyforms_form_display_element_frontend() {
 						$meta_tmp = implode( '', $result );
 	
 					} else {
-						if ( is_array( $customfield_value ) ) {
-							$meta_tmp = '<p>' . implode( ',', $customfield_value ) . '</p>';
-						} else {
-							$meta_tmp = '<p>' . $customfield_value . '</p>';
-						}
+						$meta_tmp = '<p>' . buddyforms_hook_fields_escape_value( $customfield_value ) . '</p>';
 					}
 	
 					if ( $meta_tmp ) {
@@ -348,8 +347,8 @@ function buddyforms_form_display_element_frontend() {
 					if ( isset( $customfield['hook'] ) && ! empty( $customfield['hook'] ) ) {
 						add_action(
 							$customfield['hook'],
-							function () use ( $post_meta_tmp ) {
-								echo wp_kses( addcslashes( $post_meta_tmp, '"' ), $allowed );
+							function () use ( $post_meta_tmp, $allowed ) {
+								echo wp_kses( $post_meta_tmp, $allowed );
 							}
 						);
 					}
@@ -381,9 +380,9 @@ function buddyforms_form_display_element_frontend() {
 		if ( $before_the_title ) {
 			add_filter(
 				'the_title',
-				function ( $content, $id ) use ( $before_the_title ) {
+				function ( $content, $id ) use ( $before_the_title, $allowed ) {
 					if ( is_single() && $id == get_the_ID() ) {
-						return $before_the_title . $content;
+						return wp_kses( $before_the_title, $allowed ) . $content;
 					}
 
 					return $content;
@@ -396,9 +395,9 @@ function buddyforms_form_display_element_frontend() {
 		if ( $after_the_title ) {
 			add_filter(
 				'the_title',
-				function ( $content, $id ) use ( $after_the_title ) {
+				function ( $content, $id ) use ( $after_the_title, $allowed ) {
 					if ( is_single() && $id == get_the_ID() ) {
-						return $content . $after_the_title;
+						return $content . wp_kses( $after_the_title, $allowed );
 					}
 
 					return $content;
@@ -411,8 +410,8 @@ function buddyforms_form_display_element_frontend() {
 		if ( $before_the_content ) {
 			add_filter(
 				'the_content',
-				function ( $content ) use ( $before_the_content ) {
-					return $before_the_content . $content;
+				function ( $content ) use ( $before_the_content, $allowed ) {
+					return wp_kses( $before_the_content, $allowed ) . $content;
 				},
 				9999
 			);
@@ -422,57 +421,65 @@ function buddyforms_form_display_element_frontend() {
 
 			add_filter(
 				'the_content',
-				function ( $content ) use ( $after_the_content ) {
-					return $content . $after_the_content;
+				function ( $content ) use ( $after_the_content, $allowed ) {
+					return $content . wp_kses( $after_the_content, $allowed );
 				},
 				9999
 			);
 		}
 	}
-	$bf_hooked = true;
+	$buddyforms_hook_fields_hooked = true;
 
 }
 
 add_action( 'the_post', 'buddyforms_form_display_element_frontend' );
 
-add_shortcode( 'bfsinglefield', 'bf_hooks_single_field' );
-function bf_hooks_single_field( $atts ) {
+add_shortcode( 'bfsinglefield', 'buddyforms_hook_fields_single_field' );
+
+/**
+ * Render the value of one form field of the current post ([bfsinglefield form-slug="" field-slug=""]).
+ *
+ * @param array $atts Shortcode attributes.
+ *
+ * @return string
+ */
+function buddyforms_hook_fields_single_field( $atts ) {
 	global $buddyforms, $post;
-	if ( ! isset( $atts['form-slug'] ) || ! isset( $atts['field-slug'] ) ) {
-		return;
+
+	if ( ! isset( $atts['form-slug'], $atts['field-slug'] ) ) {
+		return '';
 	}
-	if( ! is_object( $post ) ){
-		return;
+	if ( ! is_object( $post ) ) {
+		return '';
 	}
-	$form_to_check = get_post_meta( $post->ID, '_bf_form_slug', true );
-	$form_slug     = $atts['form-slug'];
-	$form          = $buddyforms[ $form_slug ];
-	if ( empty( $form ) ) {
-		return;
+
+	$form_slug  = (string) $atts['form-slug'];
+	$field_slug = (string) $atts['field-slug'];
+
+	if ( empty( $buddyforms[ $form_slug ]['form_fields'] ) ) {
+		return '';
 	}
-	if ( ! isset( $form['form_fields'] ) ) {
-		return;
+	if ( get_post_meta( $post->ID, '_bf_form_slug', true ) !== $form_slug ) {
+		return '';
 	}
-	if ( ( $atts['form-slug'] != $form_to_check ) && isset( $post ) ) {
-		return;
-	}
+
 	$selected_field = '';
-	foreach ( $form['form_fields'] as $field ) {
-		if ( $field['slug'] == $atts['field-slug'] ) {
+	foreach ( $buddyforms[ $form_slug ]['form_fields'] as $field ) {
+		if ( isset( $field['slug'] ) && $field['slug'] === $field_slug ) {
 			$selected_field = $field['slug'];
 			break;
 		}
 	}
 
-	$current_post_type = get_post_type();
-	if ( empty( $current_post_type ) ) {
-		return '<p>Field <b>"' . $atts['field-slug'] . '"</b> value.</p>';
+	if ( empty( get_post_type() ) ) {
+		/* translators: %s: field slug */
+		return '<p>' . sprintf( esc_html__( 'Field %s value.', 'buddyforms-hook-fields' ), '<b>"' . esc_html( $field_slug ) . '"</b>' ) . '</p>';
 	}
-	$field_data = buddyforms_get_field_with_meta( $form_slug, $post->ID, $selected_field, $full_string = false, $html = true );
-	if ( ! isset( $field_data['value'] ) ) {
-		return '<b>Sorry, this field was not found in the selected form.</b>';
-	}
-	$field_value = '<p>' . $field_data['value'] . '</p>';
-	return $field_value;
-}
 
+	$field_data = buddyforms_get_field_with_meta( $form_slug, $post->ID, $selected_field, false, true );
+	if ( ! isset( $field_data['value'] ) ) {
+		return '<b>' . esc_html__( 'Sorry, this field was not found in the selected form.', 'buddyforms-hook-fields' ) . '</b>';
+	}
+
+	return '<p>' . buddyforms_hook_fields_escape_value( $field_data['value'] ) . '</p>';
+}
