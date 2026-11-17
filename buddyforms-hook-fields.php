@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: BuddyForms Hook Fields
- * Plugin URI: https://themekraft.com/products/buddyforms-hook-fields/
+ * Plugin URI: https://wordpress.org/plugins/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
  * Version: 1.3.18
  * Requires at least: 5.9
@@ -35,6 +35,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+define( 'BUDDYFORMS_HOOK_FIELDS_VERSION', '1.3.18' );
 
 if ( ! function_exists( 'buddyforms_addon_plugin_dependencies_slug' ) ) {
 	/**
@@ -71,10 +73,10 @@ add_action(
 );
 
 // Create a helper function for easy SDK access.
-function bhf_fs() {
-	global $bhf_fs;
+function buddyforms_hook_fields_fs() {
+	global $buddyforms_hook_fields_fs;
 
-	if ( ! isset( $bhf_fs ) ) {
+	if ( ! isset( $buddyforms_hook_fields_fs ) ) {
 		// Include Freemius SDK.
 		if ( file_exists( dirname( dirname( __FILE__ ) ) . '/buddyforms/includes/resources/freemius/start.php' ) ) {
 			// Try to load SDK from parent plugin folder.
@@ -85,7 +87,7 @@ function bhf_fs() {
 		}
 
 		try {
-			$bhf_fs = fs_dynamic_init(
+			$buddyforms_hook_fields_fs = fs_dynamic_init(
 				array(
 					'id'             => '412',
 					'slug'           => 'buddyforms-hook-fields',
@@ -93,6 +95,7 @@ function bhf_fs() {
 					'public_key'     => 'pk_834e229dbe701030d3c9d497b9ad0',
 					'is_premium'     => false,
 					'has_paid_plans' => false,
+					'is_org_compliant' => true,
 					'parent'         => array(
 						'id'         => '391',
 						'slug'       => 'buddyforms',
@@ -112,15 +115,15 @@ function bhf_fs() {
 		}
 	}
 
-	return $bhf_fs;
+	return $buddyforms_hook_fields_fs;
 }
 
-function bhf_fs_is_parent_active_and_loaded() {
+function buddyforms_hook_fields_fs_is_parent_active_and_loaded() {
 	// Check if the parent's init SDK method exists.
 	return function_exists( 'buddyforms_core_fs' );
 }
 
-function bhf_fs_is_parent_active() {
+function buddyforms_hook_fields_fs_is_parent_active() {
 	$active_plugins_basenames = get_option( 'active_plugins' );
 
 	foreach ( $active_plugins_basenames as $plugin_basename ) {
@@ -134,21 +137,21 @@ function bhf_fs_is_parent_active() {
 	return false;
 }
 
-function bhf_fs_init() {
-	if ( bhf_fs_is_parent_active_and_loaded() ) {
+function buddyforms_hook_fields_fs_init() {
+	if ( buddyforms_hook_fields_fs_is_parent_active_and_loaded() ) {
 		// Init Freemius.
-		bhf_fs();
+		buddyforms_hook_fields_fs();
 		// Parent is active, add your init code here.
 	}
 }
 
-if ( bhf_fs_is_parent_active_and_loaded() ) {
+if ( buddyforms_hook_fields_fs_is_parent_active_and_loaded() ) {
 	// If parent already included, init add-on.
-	bhf_fs_init();
-} elseif ( bhf_fs_is_parent_active() ) {
+	buddyforms_hook_fields_fs_init();
+} elseif ( buddyforms_hook_fields_fs_is_parent_active() ) {
 	// Init add-on only after the parent is loaded.
-	add_action( 'buddyforms_core_fs_loaded', 'bhf_fs_init' );
+	add_action( 'buddyforms_core_fs_loaded', 'buddyforms_hook_fields_fs_init' );
 } else {
 	// Even though the parent is not activated, execute add-on for activation / uninstall hooks.
-	bhf_fs_init();
+	buddyforms_hook_fields_fs_init();
 }

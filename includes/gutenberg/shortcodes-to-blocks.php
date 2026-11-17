@@ -22,7 +22,9 @@ function buddyforms_hook_fields_shortcodes_to_block_init() {
 	wp_register_script(
 		'bf-embed-hook-field',
 		plugins_url( 'shortcodes-to-blocks.js', __FILE__ ),
-		array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-editor' )
+		array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-editor' ),
+		BUDDYFORMS_HOOK_FIELDS_VERSION,
+		false
 	);
 
 	//
@@ -72,12 +74,17 @@ function buddyforms_hook_fields_block_render_form( $attributes ) {
 	global $buddyforms, $post;
 
 	if ( isset( $attributes['bf_form_slug'] ) && isset( $buddyforms[ $attributes['bf_form_slug'] ] ) ) {
-		$tmp = '<p>' . __( 'Please select a form element in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
+		$tmp = '<p>' . esc_html__( 'Please select a form element in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
 		if ( isset( $attributes['bf_form_field'] ) ) {
-				$tmp = do_shortcode( '[bfsinglefield form-slug="' . $attributes['bf_form_slug'] . '" field-slug="' . $attributes['bf_form_field'] . '"]' );
+			$tmp = buddyforms_hook_fields_single_field(
+				array(
+					'form-slug'  => $attributes['bf_form_slug'],
+					'field-slug' => $attributes['bf_form_field'],
+				)
+			);
 		}
 		return $tmp;
 	} else {
-		return '<p>' . __( 'Please select a form in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
+		return '<p>' . esc_html__( 'Please select a form in the block settings sidebar!', 'buddyforms-hook-fields' ) . '</p>';
 	}
 }
