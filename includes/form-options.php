@@ -59,7 +59,7 @@ function buddyforms_list_all_post_fields_admin_settings_sidebar_metabox_html() {
 		$all_pages,
 		array(
 			'value'     => $attached_page,
-			'shortDesc' => sprintf( '%s <a href="https://docs.buddyforms.com/article/641-page-template?utm_source=plugin" target="_blank">%s</a>', __( 'This is a template page to override the output of a single post.', 'buddyforms-hook-fields' ), __( 'Read more in the documentation.', 'buddyforms-hook-fields' ) ),
+			'shortDesc' => sprintf( '%s <a href="https://docs.buddyforms.com/article/294-display-form-element-values-in-the-post?utm_source=plugin" target="_blank">%s</a>', __( 'This is a template page to override the output of a single post.', 'buddyforms-hook-fields' ), __( 'Read more in the documentation.', 'buddyforms-hook-fields' ) ),
 			'id'        => 'attached_page',
 		)
 	);
