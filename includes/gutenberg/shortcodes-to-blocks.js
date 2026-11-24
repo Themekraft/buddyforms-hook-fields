@@ -5,7 +5,7 @@
 // Embed a form
 //
 registerBlockType('buddyformshooks/bf-insert-form-field-value', {
-    title: __('BuddyForm Form Field Value', 'buddyforms'),
+    title: __('BuddyForms Field Value', 'buddyforms'),
     icon: iconBuddyForms,
     category: 'buddyforms',
     attributes: {
