@@ -4,67 +4,48 @@ Tags: form submission data, display form data, dynamic templates, content templa
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.20
+Stable tag: 1.3.21-beta.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Display data submitted with BuddyForms on the front end, through hooks or dynamic content templates for the single view of any post type.
+Show submitted BuddyForms data on the front end without code: use hooks, a shortcode or a block, or build single-view templates.
 
 == Description ==
 
-BuddyForms Hook Fields displays the data submitted with a BuddyForms form on the front end. Show each field where you need it through hooks, or create dynamic content templates that define how every submission of a form looks in its single view. It works with ACF, Pods, BuddyPress and BuddyBoss fields that are part of a BuddyForms form.
+BuddyForms Hook Fields lets you display the data people submit through BuddyForms on the front end of your site, without writing code. Choose where each field appears, or build a reusable template for the single view of any post type. It is an add-on for BuddyForms.
 
-### Display any field type
-The plugin handles the different field types (links, categories, text fields and more) and displays each one the way it should look. You can show only the value, or the value with the field name.
+= What it does =
 
-### Create dynamic templates
-Create dynamic templates that display field values. Use them in the Form Builder to override the single view of posts, pages or any other post type.
-
-[youtube https://youtu.be/sCGIIfmF9hY]
-
-### Block Editor and Full Site Editing
-Display any form value in the Block Editor or in block themes.
-
-### Dynamic content templates with blocks
-Use form field data as dynamic data in your block templates.
-
-[youtube https://youtu.be/swDcSpn-psg]
-
-### Use it with page builders like Elementor or Divi
-Use any template or field value in your preferred page builder to create dynamic single pages or a complete dynamic layout.
-
-### Create a list and reorder items with drag and drop
-To display several fields as a list in one place, reorder them with drag and drop in the Form Builder. The fields are displayed in the same order as in the form.
-
-### Hook into the content
-For the single view there are four default positions:
-1. Before the title
-2. After the title
-3. Before the content
-4. After the content
-
-### Global hooks
-Site-wide, you can hook into any action. Enter the hook name in the field options.
-
-### How to display form data on the front end
-[Display your website data anywhere you choose](https://themekraft.com/wordpress-solutions/display-form-data/)
-
-### Documentation and support
-The code is documented inline and in the BuddyForms documentation. If you get stuck, the help links in the BuddyForms settings panel in your dashboard lead to our support.
+* Show submitted data before or after the post title or content
+* Show a field on any theme hook by entering the hook name
+* Output fields with the [bfsinglefield] shortcode or a block
+* Build reusable single-view templates for any post type
+* Use it with Elementor through templates and shortcodes: add the shortcode in any page builder's shortcode widget
+* Output is formatted for each field type, such as links, categories and text
 
 == Installation ==
 
-Install BuddyForms Hook Fields from the Plugins screen in your dashboard, or upload the plugin folder to "/wp-content/plugins/".
-
-Activate BuddyForms Hook Fields on the Plugins screen. BuddyForms must be installed and active.
+1. Install and activate BuddyForms.
+2. Install this add-on from Plugins > Add New, or upload its folder to /wp-content/plugins/, and activate it.
+3. Open a form in the BuddyForms form builder and use the new display options on a field.
 
 == Frequently Asked Questions ==
 
-= Can I display post meta fields? =
-Yes. You can display any post meta that is handled by a BuddyForms post form, including post meta that already exists. Create the form element and assign it to the meta key, so the plugin knows which type of data it has to render.
+= Do I need BuddyForms? =
 
-= Can I display ACF and Pods fields? =
-Yes, when they are part of a BuddyForms form. They are displayed like any other form field.
+Yes. Hook Fields is an add-on for BuddyForms and needs it to work.
+
+= Do I need to write code? =
+
+No. You choose where a field appears in the BuddyForms form builder.
+
+= Does it work with Elementor? =
+
+Yes, through templates and shortcodes. Add the [bfsinglefield] shortcode in the shortcode widget of any page builder.
+
+= Is Hook Fields free? =
+
+Yes. Hook Fields is a free add-on for BuddyForms.
 
 == Screenshots ==
 

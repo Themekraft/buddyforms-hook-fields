@@ -3,7 +3,7 @@
  * Plugin Name: BuddyForms Hook Fields
  * Plugin URI: https://wordpress.org/plugins/buddyforms-hook-fields/
  * Description: BuddyForms Hook Fields
- * Version: 1.3.20
+ * Version: 1.3.21-beta.1
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Requires Plugins: buddyforms
@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BUDDYFORMS_HOOK_FIELDS_VERSION', '1.3.20' );
+define( 'BUDDYFORMS_HOOK_FIELDS_VERSION', '1.3.21-beta.1' );
 
 if ( ! function_exists( 'buddyforms_addon_plugin_dependencies_slug' ) ) {
 	/**
@@ -77,13 +77,9 @@ function buddyforms_hook_fields_fs() {
 	global $buddyforms_hook_fields_fs;
 
 	if ( ! isset( $buddyforms_hook_fields_fs ) ) {
-		// Include Freemius SDK.
-		if ( file_exists( dirname( dirname( __FILE__ ) ) . '/buddyforms/includes/resources/freemius/start.php' ) ) {
-			// Try to load SDK from parent plugin folder.
-			require_once dirname( dirname( __FILE__ ) ) . '/buddyforms/includes/resources/freemius/start.php';
-		} elseif ( file_exists( dirname( dirname( __FILE__ ) ) . '/buddyforms-premium/includes/resources/freemius/start.php' ) ) {
-			// Try to load SDK from premium parent plugin folder.
-			require_once dirname( dirname( __FILE__ ) ) . '/buddyforms-premium/includes/resources/freemius/start.php';
+		// The Freemius SDK comes with BuddyForms, which loads it before this add-on initializes.
+		if ( ! function_exists( 'fs_dynamic_init' ) ) {
+			return false;
 		}
 
 		try {

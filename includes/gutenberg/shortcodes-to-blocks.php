@@ -36,6 +36,9 @@ function buddyforms_hook_fields_shortcodes_to_block_init() {
 	$forms_fields = array();
 	foreach ( $buddyforms as $form_slug => $form ) {
 		$forms[ $form_slug ] = $form['name'];
+		if ( empty( $form['form_fields'] ) || ! is_array( $form['form_fields'] ) ) {
+			continue;
+		}
 		foreach ( $form['form_fields'] as $key => $field ) {
 			$forms_fields[ $form_slug ][ $key ] = $field['slug'];
 		}
